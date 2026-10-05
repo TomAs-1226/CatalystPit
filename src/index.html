@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Catalyst Pit</title>
+  <!-- The house stylesheet first, then this app's own. `identity.css` is a verbatim copy of the one
+       in FrcCatalyst's docs and is never edited here; styles.css re-points the tokens the way
+       Catalyst Console does, so the two sit side by side on a driver station as one family. -->
+  <link rel="stylesheet" href="styles/identity.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="cat-app">
+  <div class="app" id="app">
+
+    <!-- The status bar: what this is, whose it is, and the few things known right now. Nothing up
+         here has a ground of its own, and anything not known is simply absent. -->
+    <header class="top">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M19.6 4.9a5 5 0 0 0-6.9 5.9l-7.6 7.6a1.9 1.9 0 1 0 2.7 2.7l7.6-7.6a5 5 0 0 0 5.9-6.9l-3 3-2.4-.5-.5-2.4z"/>
+        </svg>
+        <span class="brand-name">Pit</span>
+        <span class="brand-team" id="teamTag"></span>
+      </div>
+      <span class="top-event" id="eventTag"></span>
+      <span class="grow"></span>
+      <span class="top-stat" id="previewTag" hidden>Browser preview · nothing is saved</span>
+      <span class="top-stat" id="nexusTag" hidden></span>
+      <span class="top-stat" id="robotTag" hidden>
+        <svg viewBox="0 0 28 13" aria-hidden="true">
+          <rect x="0.8" y="0.8" width="23.4" height="11.4" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M26.2 4.6v3.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span id="robotText"></span>
+      </span>
+      <span class="clock" id="clock" aria-label="Time"></span>
+    </header>
+
+    <nav class="rail" id="rail" aria-label="Sections"></nav>
+
+    <main class="stage" id="stage">
+      <!-- Something the crew has to be told about the data file. Not a toast: it stays until read. -->
+      <div class="notice" id="notice" role="alert" hidden>
+        <span id="noticeText"></span>
+        <button class="btn small ghost" data-act="dismiss-notice">Dismiss</button>
+      </div>
+      <div class="view" id="view"></div>
+    </main>
+
+    <!-- Confirmations grow out of a small glass capsule at the top edge and shrink back into it. -->
+    <div class="island cat-glass" id="island" role="status" aria-live="polite" hidden><span id="islandText"></span></div>
+
+    <!-- The one floating layer: a sheet for entering something. Glass, because it floats. -->
+    <div class="scrim" id="scrim" hidden>
+      <form class="sheet cat-glass" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" novalidate></form>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

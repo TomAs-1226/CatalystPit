@@ -1,0 +1,45 @@
+[package]
+name = "catalyst-pit"
+version = "0.1.0"
+description = "Catalyst Pit — the match-day pit companion"
+edition = "2021"
+rust-version = "1.77"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+# The save dialog for the event report. Opened from Rust, so the webview needs no file permissions.
+tauri-plugin-dialog = "2"
+# Exactly one Pit per machine. Two would be two writers on one data file, and the second to save
+# would silently undo the first.
+tauri-plugin-single-instance = "2"
+
+# No updater yet. The siblings ship tauri-plugin-updater with a signing key; there is no key for
+# this app, and an updater without one cannot verify what it installs. See README, "Updates".
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# The one HTTPS request the app makes: the Nexus for FRC event status. Blocking and small, with
+# rustls, so there is no system TLS to differ between laptops.
+ureq = "2"
+
+# The read-only robot battery reading. NT4 speaks msgpack over a websocket; these are the same
+# crates, at the same versions, Catalyst Console's client uses.
+tokio = { version = "1", features = ["rt", "macros", "net", "time"] }
+tokio-tungstenite = "0.24"
+futures-util = "0.3"
+rmpv = "1"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

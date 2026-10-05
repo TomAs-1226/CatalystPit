@@ -1,0 +1,74 @@
+{
+  "_about": "A Nexus for FRC event response in the shape of its public API reference (GET /api/v1/event/{eventKey}). Written by hand from that reference, NOT recorded from a live key: no key was available when this app was built. Team numbers other than 5805 are placeholders. Times are epoch milliseconds on 2026-10-10 UTC.",
+  "eventKey": "demo2026",
+  "dataAsOfTime": 1791640800000,
+  "nowQueuing": "Qualification 11",
+  "matches": [
+    {
+      "label": "Qualification 4",
+      "status": "On field",
+      "redTeams": ["1001", "5805", "1003"],
+      "blueTeams": ["1004", "1005", "1006"],
+      "times": {
+        "estimatedQueueTime": 1791633600000,
+        "estimatedOnDeckTime": 1791634200000,
+        "estimatedOnFieldTime": 1791634560000,
+        "estimatedStartTime": 1791634800000,
+        "actualQueueTime": 1791633660000,
+        "actualOnDeckTime": 1791634260000,
+        "actualOnFieldTime": 1791634620000
+      },
+      "breakAfter": null,
+      "replayOf": null
+    },
+    {
+      "label": "Qualification 11",
+      "status": "Now queuing",
+      "redTeams": ["1007", "1008", "1009"],
+      "blueTeams": ["1010", "1011", "1012"],
+      "times": {
+        "estimatedQueueTime": 1791640500000,
+        "estimatedOnDeckTime": 1791641100000,
+        "estimatedOnFieldTime": 1791641460000,
+        "estimatedStartTime": 1791641700000,
+        "actualQueueTime": 1791640560000
+      },
+      "breakAfter": null,
+      "replayOf": null
+    },
+    {
+      "label": "Qualification 13",
+      "status": "Queuing soon",
+      "redTeams": ["1013", "1014", "1015"],
+      "blueTeams": ["5805", "1016", "1017"],
+      "times": {
+        "estimatedQueueTime": 1791641700000,
+        "estimatedOnDeckTime": 1791642300000,
+        "estimatedOnFieldTime": 1791642660000,
+        "estimatedStartTime": 1791642900000
+      },
+      "breakAfter": "Lunch",
+      "replayOf": null
+    },
+    {
+      "label": "Qualification 21",
+      "status": "Queuing soon",
+      "redTeams": ["5805", "1018", null],
+      "blueTeams": ["1019", "1020", "1021"],
+      "times": {
+        "estimatedQueueTime": 1791650100000,
+        "estimatedOnDeckTime": 1791650700000,
+        "estimatedOnFieldTime": 1791651060000,
+        "estimatedStartTime": 1791651300000
+      },
+      "breakAfter": null,
+      "replayOf": null
+    }
+  ],
+  "announcements": [
+    { "id": "a1", "announcement": "Lunch runs 12:00 to 13:00. Pits stay open.", "postedTime": 1791637200000 }
+  ],
+  "partsRequests": [
+    { "id": "p1", "parts": "1/4-20 lock nuts", "requestedByTeam": "1004", "postedTime": 1791639000000 }
+  ]
+}
