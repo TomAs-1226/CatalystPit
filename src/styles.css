@@ -1,0 +1,870 @@
+/* Catalyst Pit
+ *
+ * Read at arm's length, in a loud pit, by someone holding a battery. That sets everything here:
+ * type a step larger than a desk app's, targets big enough for a thumb in a glove, and one thing
+ * per tile that can be read without reading the tile.
+ *
+ * `styles/identity.css` is linked ahead of this file and is a verbatim copy of the house sheet.
+ * Like Catalyst Console, Pit is drawn after Tesla's in-car screens rather than the launch material,
+ * so the first block below re-points the house tokens at that palette and face — the same values
+ * Console uses, so the two apps side by side on a driver station are one family. Nothing in
+ * identity.css is edited.
+ *
+ * What the owner ruled out, kept here so nobody adds it back: nothing pulses or blinks, there is no
+ * "live" badge, no bar of buttons pinned over the content, no browser scrollbar, and no ornament
+ * that is not information. */
+
+@font-face {
+  font-family: "Figtree Pit";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 900;
+  src: url(vendor/fonts/figtree-latin-wght-normal.woff2) format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Figtree Pit";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 900;
+  src: url(vendor/fonts/figtree-latin-ext-wght-normal.woff2) format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---- the Tesla layer: Console's values, token for token ------------------------------------- */
+:root {
+  --cat-ground: #000000;
+  --cat-ground-top: #000000;
+  --cat-ground-mid: #000000;
+  --cat-ground-bottom: #000000;
+  --cat-ground-grad: #000000;
+  --cat-surface-1: #1c1c1e;                 /* a tile */
+  --cat-surface-2: #2c2c2e;                 /* a control on a tile */
+  --cat-surface-3: #3a3a3c;                 /* a track, a pressed control */
+  --cat-line: rgba(255, 255, 255, 0.08);
+  --cat-line-strong: rgba(255, 255, 255, 0.14);
+  --cat-hair: rgba(255, 255, 255, 0.08);
+  --cat-lift: 0 0 0 0 transparent;          /* flat: nothing is lit from above */
+  --cat-lift-strong: 0 0 0 0 transparent;
+
+  --cat-ink: #ffffff;
+  --cat-ink-strong: #ffffff;
+  --cat-body: #e5e5ea;
+  --cat-dim: #98989d;
+  --cat-quiet: #8e8e93;
+  --cat-faint: #636366;
+
+  /* The one blue: the primary action, a tick, what is selected. */
+  --cat-signal: #3e6ae1;
+  --cat-signal-lt: #5b83ee;
+  --cat-signal-dk: #2c4fad;
+  --cat-signal-ink: #9cb6ff;
+  --cat-signal-tint: rgba(62, 106, 225, 0.18);
+  --cat-signal-tint-2: rgba(62, 106, 225, 0.28);
+  --cat-signal-line: rgba(62, 106, 225, 0.6);
+  --cat-on-signal: #ffffff;
+
+  /* The telltales, and nothing else in colour. */
+  --cat-bad: #ff453a;
+  --cat-warn: #ffb340;
+  --cat-ok: #30d158;
+  --cat-info: #d1d1d6;
+  --cat-warn-tint: rgba(255, 179, 64, 0.16);
+  --cat-bad-tint: rgba(255, 69, 58, 0.16);
+  --cat-ok-tint: rgba(48, 209, 88, 0.16);
+  --cat-info-tint: rgba(255, 255, 255, 0.08);
+
+  --cat-sans: "Figtree Pit", "Segoe UI Variable Display", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --cat-sans-text: var(--cat-sans);
+  --cat-w-normal: 400;
+  --cat-w-medium: 540;
+  --cat-w-semi: 580;
+  --cat-w-bold: 640;
+
+  --cat-r-card: 18px;
+  --cat-r-chip: 10px;
+  --cat-r-field: 12px;
+  --cat-r-inner: 8px;
+
+  /* ---- Pit's own, and deliberately few ---------------------------------------------------- */
+  /* The type scale. A step up from the identity's: 15 is body there and the smallest thing a
+     person is asked to read here. */
+  --pit-fs-13: 13px;   /* units, eyebrows, the status bar */
+  --pit-fs-15: 15px;   /* captions */
+  --pit-fs-17: 17px;   /* body, rows, buttons */
+  --pit-fs-20: 20px;   /* tile titles */
+  --pit-fs-28: 28px;   /* view titles, a tile's one value */
+  --pit-fs-44: 44px;   /* a label read from across the pit */
+  --pit-fs-88: 88px;   /* the countdown */
+
+  --pit-tap: 52px;     /* the smallest thing a thumb is asked to hit */
+  --pit-row: 60px;
+  --pit-gap: 14px;     /* tiles 14 apart, as Bezel sets them */
+  --pit-pad: 24px;     /* tile padding, as Bezel sets it */
+
+  /* The two alliances. Not telltales: they name a side, and are only ever used with the word. */
+  --pit-red: #ff6961;
+  --pit-red-tint: rgba(255, 105, 97, 0.16);
+  --pit-blue: #6ea8ff;
+  --pit-blue-tint: rgba(110, 168, 255, 0.16);
+}
+
+/* ---- the frame -------------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; margin: 0; }
+
+body {
+  background: var(--cat-ground);
+  background-image: none;
+  font-size: var(--pit-fs-17);
+  line-height: 1.4;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+input, textarea { user-select: text; -webkit-user-select: text; }
+button { font: inherit; color: inherit; }
+h1, h2, h3, p { margin: 0; }
+
+.app {
+  display: grid;
+  grid-template: "top top" 52px "rail stage" minmax(0, 1fr) / 104px minmax(0, 1fr);
+  height: 100vh;
+}
+
+/* ---- the status bar --------------------------------------------------------------------------- */
+.top {
+  grid-area: top;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 24px 0 0;
+  font-size: var(--pit-fs-15);
+  color: var(--cat-dim);
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.brand {
+  flex: none;
+  width: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--cat-ink);
+  font-weight: var(--cat-w-semi);
+}
+.brand-mark { width: 20px; height: 20px; }
+.brand-team { color: var(--cat-dim); font-weight: var(--cat-w-normal); font-variant-numeric: tabular-nums; }
+.brand:has(.brand-team:empty) .brand-team { display: none; }
+
+.top-event { color: var(--cat-body); overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.grow { flex: 1 1 0; }
+.top-stat { display: inline-flex; align-items: center; gap: 8px; flex: none; }
+.top-stat svg { width: 26px; height: 12px; }
+.top-stat[data-level="warn"] { color: var(--cat-warn); }
+.clock { flex: none; color: var(--cat-ink); font-weight: var(--cat-w-medium); font-variant-numeric: tabular-nums; }
+
+/* ---- the rail --------------------------------------------------------------------------------- */
+.rail {
+  grid-area: rail;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px 16px;
+  overflow: hidden;
+}
+
+.nav-btn {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 72px;
+  flex: none;
+  border: 0;
+  border-radius: var(--cat-r-card);
+  background: transparent;
+  color: var(--cat-dim);
+  font-size: var(--pit-fs-13);
+  font-weight: var(--cat-w-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--cat-dur-effect) var(--cat-ease-effect),
+    color var(--cat-dur-effect) var(--cat-ease-effect),
+    transform var(--cat-dur-hold) var(--cat-ease-hold);
+}
+.nav-btn svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.nav-btn:hover { color: var(--cat-ink); }
+.nav-btn:active { transform: scale(0.96); }
+.nav-btn[aria-current="page"] { background: var(--cat-surface-1); color: var(--cat-ink); }
+.nav-spacer { flex: 1 1 0; }
+
+/* A count on a section: open issues, mostly. A number, not a dot, and it does not move. */
+.nav-count {
+  position: absolute;
+  top: 9px;
+  right: 16px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--cat-warn);
+  color: #1c1300;
+  font-size: 12px;
+  font-weight: var(--cat-w-bold);
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.nav-count[data-level="bad"] { background: var(--cat-bad); color: #2a0503; }
+
+/* ---- the stage -------------------------------------------------------------------------------- */
+.stage {
+  grid-area: stage;
+  overflow: hidden auto;
+  scrollbar-gutter: stable;
+  padding: 8px 24px 40px 4px;
+  min-width: 0;
+}
+
+/* One scrollbar for everything that scrolls: a pale thumb inset from the edge, and no track. Left
+   to the platform, WebView2 draws a light grey gutter down a black sheet. */
+:is(.stage, .sheet-body, textarea, .matchlist)::-webkit-scrollbar { width: 12px; height: 12px; }
+:is(.stage, .sheet-body, textarea, .matchlist)::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16) padding-box;
+  border: 4px solid transparent;
+  border-radius: 999px;
+}
+:is(.stage, .sheet-body, textarea, .matchlist)::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.3); }
+:is(.stage, .sheet-body, textarea, .matchlist)::-webkit-scrollbar-track,
+:is(.stage, .sheet-body, textarea, .matchlist)::-webkit-scrollbar-corner { background: transparent; }
+textarea::-webkit-resizer { background: transparent; }
+
+.view { max-width: 1280px; margin: 0 auto; display: grid; gap: var(--pit-gap); align-content: start; }
+
+/* A view arriving: `release`, because it is a thing arriving. It travels a short way and fades in
+   over the first part of the spring; nothing bounces a whole page. */
+.view.arrive > * { animation: arrive var(--cat-dur-release) var(--cat-ease-release) both; }
+.view.arrive > :nth-child(2) { animation-delay: 30ms; }
+.view.arrive > :nth-child(3) { animation-delay: 60ms; }
+.view.arrive > :nth-child(n + 4) { animation-delay: 90ms; }
+@keyframes arrive {
+  from { opacity: 0; transform: translateY(10px); }
+  35% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1280px;
+  margin: 0 auto var(--pit-gap);
+  padding: 14px 16px 14px 20px;
+  border-radius: var(--cat-r-card);
+  background: var(--cat-warn-tint);
+  color: var(--cat-warn);
+  font-size: var(--pit-fs-15);
+}
+
+/* ---- view head -------------------------------------------------------------------------------- */
+.head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  min-height: var(--pit-tap);
+  padding: 4px 0 2px;
+}
+.head h1 {
+  font-size: var(--pit-fs-28);
+  font-weight: var(--cat-w-medium);
+  color: var(--cat-ink);
+  letter-spacing: -0.01em;
+  margin-right: auto;
+}
+.head-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---- tiles ------------------------------------------------------------------------------------ */
+.tile {
+  position: relative;
+  background: var(--cat-surface-1);
+  border-radius: var(--cat-r-card);
+  padding: var(--pit-pad);
+  min-width: 0;
+}
+.tile-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--pit-fs-15);
+  font-weight: var(--cat-w-medium);
+  color: var(--cat-dim);
+  margin-bottom: 12px;
+}
+.tile-title { font-size: var(--pit-fs-20); font-weight: var(--cat-w-medium); color: var(--cat-ink); }
+.tile-value {
+  font-size: var(--pit-fs-28);
+  font-weight: var(--cat-w-medium);
+  color: var(--cat-ink);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.tile-sub { font-size: var(--pit-fs-15); color: var(--cat-dim); margin-top: 6px; }
+.tile-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+
+/* A tile that leads somewhere presses like a button. */
+button.tile {
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  display: block;
+  width: 100%;
+  transition: background-color var(--cat-dur-effect) var(--cat-ease-effect), transform var(--cat-dur-hold) var(--cat-ease-hold);
+}
+button.tile:hover { background: #222224; }
+button.tile:active { transform: scale(0.985); }
+
+/* An empty state: what is missing, why it matters, and the one thing to do about it. */
+.empty { display: grid; gap: 8px; justify-items: start; padding: 8px 0; }
+.empty h2 { font-size: var(--pit-fs-20); font-weight: var(--cat-w-medium); color: var(--cat-ink); }
+.empty p { color: var(--cat-dim); max-width: 46ch; }
+.empty .tile-actions { margin-top: 12px; }
+.tile.empty-tile { padding: 40px var(--pit-pad); }
+
+/* ---- buttons ---------------------------------------------------------------------------------- */
+/* Bezel's tonal button: a capsule on surface-2. The press answers on pointer-down with a state
+   layer from the touch point (motion.js) and a small squeeze. */
+.btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: var(--pit-tap);
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--cat-surface-2);
+  color: var(--cat-ink);
+  font-size: var(--pit-fs-17);
+  font-weight: var(--cat-w-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--cat-dur-effect) var(--cat-ease-effect),
+    color var(--cat-dur-effect) var(--cat-ease-effect),
+    transform var(--cat-dur-hold) var(--cat-ease-hold);
+}
+.btn svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.btn:hover { background: var(--cat-surface-3); }
+.btn:active { transform: scale(0.97); }
+.btn:disabled { color: var(--cat-faint); background: var(--cat-surface-1); cursor: default; transform: none; }
+.tile .btn:disabled { background: rgba(255, 255, 255, 0.04); }
+
+.btn.primary { background: var(--cat-signal); color: var(--cat-on-signal); }
+.btn.primary:hover { background: var(--cat-signal-lt); }
+.btn.ghost { background: transparent; color: var(--cat-dim); }
+.btn.ghost:hover { background: var(--cat-surface-2); color: var(--cat-ink); }
+.btn.ghost:disabled, .tile .btn.ghost:disabled { background: transparent; color: var(--cat-faint); }
+.btn.danger { color: var(--cat-bad); }
+.btn.small { min-height: 40px; padding: 0 16px; font-size: var(--pit-fs-15); }
+.btn.icon { width: 44px; min-height: 44px; padding: 0; }
+.btn.wide { width: 100%; }
+
+:where(.btn, .nav-btn, .check, button.tile, .match, .seg-btn, .mrow):focus-visible {
+  outline: 2px solid var(--cat-ink);
+  outline-offset: 2px;
+}
+
+/* ---- small words ------------------------------------------------------------------------------ */
+/* A tag says a state in a word. Colour repeats the word; it never replaces it. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--cat-info-tint);
+  color: var(--cat-body);
+  font-size: var(--pit-fs-13);
+  font-weight: var(--cat-w-semi);
+  white-space: nowrap;
+  flex: none;
+}
+.tag[data-level="ok"] { background: var(--cat-ok-tint); color: var(--cat-ok); }
+.tag[data-level="warn"] { background: var(--cat-warn-tint); color: var(--cat-warn); }
+.tag[data-level="bad"] { background: var(--cat-bad-tint); color: var(--cat-bad); }
+.tag[data-level="signal"] { background: var(--cat-signal-tint); color: var(--cat-signal-ink); }
+.tag[data-side="red"] { background: var(--pit-red-tint); color: var(--pit-red); }
+.tag[data-side="blue"] { background: var(--pit-blue-tint); color: var(--pit-blue); }
+
+.dim { color: var(--cat-dim); }
+.quiet { color: var(--cat-quiet); font-size: var(--pit-fs-15); }
+.num { font-variant-numeric: tabular-nums; }
+.warn-text { color: var(--cat-warn); }
+.bad-text { color: var(--cat-bad); }
+.ok-text { color: var(--cat-ok); }
+
+/* Severity, as a shape and a word. The shape is what a colour-blind reader, or a washed-out laptop
+   in a bright hall, still tells apart: a square, a diamond, a ring. */
+.sev { display: inline-flex; align-items: center; gap: 8px; font-size: var(--pit-fs-13); font-weight: var(--cat-w-semi); white-space: nowrap; flex: none; }
+.sev::before { content: ""; width: 10px; height: 10px; flex: none; }
+.sev[data-sev="high"] { color: var(--cat-bad); }
+.sev[data-sev="high"]::before { background: var(--cat-bad); border-radius: 2px; }
+.sev[data-sev="medium"] { color: var(--cat-warn); }
+.sev[data-sev="medium"]::before { background: var(--cat-warn); border-radius: 2px; transform: rotate(45deg) scale(0.86); }
+.sev[data-sev="low"] { color: var(--cat-dim); }
+.sev[data-sev="low"]::before { border: 2px solid var(--cat-dim); border-radius: 999px; }
+.sev[data-sev="fixed"] { color: var(--cat-ok); }
+.sev[data-sev="fixed"]::before { background: var(--cat-ok); border-radius: 999px; }
+
+/* ---- the meter -------------------------------------------------------------------------------- */
+/* Bezel's meter: a capsule track, a fill that takes the track's outer corners through the clip and
+   keeps small inner ones. White, because a reading is white. It travels on `settle`. */
+.meter { height: 12px; border-radius: 999px; background: var(--cat-surface-3); overflow: hidden; }
+.meter-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 0 6px 6px 0;
+  background: var(--cat-ink);
+  transition: width var(--cat-dur-settle) var(--cat-ease-settle), background-color var(--cat-dur-effect) var(--cat-ease-effect);
+}
+.meter[data-full="true"] .meter-fill { background: var(--cat-ok); border-radius: 0; }
+.meter.big { height: 16px; }
+
+/* ---- rows ------------------------------------------------------------------------------------- */
+.rows { display: grid; }
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: var(--pit-row);
+  padding: 10px 0;
+}
+.row + .row { box-shadow: inset 0 1px 0 var(--cat-hair); }
+.row-main { flex: 1 1 0; min-width: 0; }
+.row-title { color: var(--cat-ink); overflow-wrap: anywhere; }
+.row-sub { font-size: var(--pit-fs-15); color: var(--cat-dim); overflow-wrap: anywhere; }
+.row-actions { display: flex; gap: 8px; flex: none; }
+
+.kv { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 7px 0; font-size: var(--pit-fs-15); }
+.kv + .kv { box-shadow: inset 0 1px 0 var(--cat-hair); }
+.kv dt { color: var(--cat-dim); }
+.kv dd { margin: 0; color: var(--cat-ink); font-variant-numeric: tabular-nums; text-align: right; }
+dl { margin: 0; }
+
+/* ================================================================================ Now ========= */
+.now-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--pit-gap); align-items: stretch; }
+.now-side { display: grid; gap: var(--pit-gap); align-content: start; }
+
+.next { padding: 28px 28px 24px; min-height: 420px; display: flex; flex-direction: column; }
+.next-top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.next-label { font-size: var(--pit-fs-44); font-weight: var(--cat-w-medium); color: var(--cat-ink); line-height: 1; letter-spacing: -0.02em; }
+.next-long { color: var(--cat-dim); font-size: var(--pit-fs-15); }
+
+.count { margin: auto 0; padding: 28px 0 24px; }
+.count-n {
+  font-size: var(--pit-fs-88);
+  font-weight: var(--cat-w-normal);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--cat-ink);
+  font-variant-numeric: tabular-nums;
+}
+.count-n.words { font-size: var(--pit-fs-44); line-height: 1.1; letter-spacing: -0.02em; }
+.count[data-late="true"] .count-n { color: var(--cat-warn); }
+.count-what { margin-top: 12px; font-size: var(--pit-fs-17); color: var(--cat-body); }
+.count-src { font-size: var(--pit-fs-15); color: var(--cat-dim); margin-top: 2px; }
+.count-src[data-level="warn"] { color: var(--cat-warn); }
+
+.next-facts { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: var(--pit-fs-15); color: var(--cat-dim); }
+.next-facts b { font-weight: var(--cat-w-medium); color: var(--cat-ink); font-variant-numeric: tabular-nums; margin-left: 6px; }
+
+.issue-mini { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+.issue-mini + .issue-mini { box-shadow: inset 0 1px 0 var(--cat-hair); }
+.issue-mini span:last-child { color: var(--cat-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+
+/* ============================================================================ Checklist ======= */
+.cl-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 24px; align-items: center; }
+.cl-count { font-size: var(--pit-fs-28); font-weight: var(--cat-w-medium); color: var(--cat-ink); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.cl-count small { font-size: var(--pit-fs-17); color: var(--cat-dim); font-weight: var(--cat-w-normal); margin-left: 6px; }
+.cl-bar .meter { grid-column: 1 / -1; }
+.cl-for { display: flex; align-items: center; gap: 12px; }
+
+.groups { columns: 2; column-gap: var(--pit-gap); }
+.group { break-inside: avoid; margin-bottom: var(--pit-gap); padding: 18px 12px 10px; }
+.group-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 12px 8px; }
+.group-head h2 { font-size: var(--pit-fs-20); font-weight: var(--cat-w-medium); color: var(--cat-ink); }
+.group-head .num { color: var(--cat-dim); font-size: var(--pit-fs-15); }
+.group-head .num[data-done="true"] { color: var(--cat-ok); }
+
+/* One line of the checklist. The whole row is the target. */
+.check {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: var(--pit-row);
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--cat-ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--cat-dur-effect) var(--cat-ease-effect), color var(--cat-dur-effect) var(--cat-ease-effect);
+}
+.check:hover { background: rgba(255, 255, 255, 0.04); }
+.check-box {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 2px solid var(--cat-faint);
+  display: grid;
+  place-content: center;
+  transition: background-color var(--cat-dur-effect) var(--cat-ease-effect), border-color var(--cat-dur-effect) var(--cat-ease-effect);
+}
+.check-box::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  clip-path: polygon(14% 47%, 0 61%, 39% 100%, 100% 22%, 85% 9%, 37% 70%);
+  transform: scale(0);
+}
+.check[aria-checked="true"] { color: var(--cat-dim); }
+.check[aria-checked="true"] .check-box { background: var(--cat-signal); border-color: var(--cat-signal); }
+.check[aria-checked="true"] .check-box::before { transform: scale(1); }
+/* The tick that was just made arrives on `release`; the rest are simply there. */
+.check.just .check-box::before { animation: tick var(--cat-dur-release) var(--cat-ease-release) both; }
+@keyframes tick { from { transform: scale(0); } to { transform: scale(1); } }
+
+.edit-row { display: flex; align-items: center; gap: 8px; min-height: var(--pit-row); padding: 6px 4px 6px 12px; }
+.edit-row + .edit-row { box-shadow: inset 0 1px 0 var(--cat-hair); }
+.edit-row .row-title { flex: 1 1 0; min-width: 0; }
+
+.stamp { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.stamp-text { flex: 1 1 260px; min-width: 0; }
+
+details.run { padding: 0; }
+details.run + details.run { box-shadow: inset 0 1px 0 var(--cat-hair); }
+details.run summary { list-style: none; display: flex; align-items: center; gap: 14px; min-height: var(--pit-row); padding: 8px 0; cursor: pointer; }
+details.run summary::-webkit-details-marker { display: none; }
+details.run summary .row-main { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+details.run ul { margin: 0 0 14px; padding: 0 0 0 18px; color: var(--cat-dim); font-size: var(--pit-fs-15); }
+details.run li { padding: 2px 0; }
+
+/* ============================================================================ Batteries ======= */
+.rec { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.rec-main { flex: 1 1 320px; min-width: 0; }
+.rec-label { font-size: var(--pit-fs-44); font-weight: var(--cat-w-medium); color: var(--cat-ink); line-height: 1.05; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+
+.batt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: var(--pit-gap); }
+.batt { display: flex; flex-direction: column; }
+.batt-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.batt-name { font-size: var(--pit-fs-28); font-weight: var(--cat-w-medium); color: var(--cat-ink); line-height: 1.1; overflow-wrap: anywhere; }
+.batt-since { font-size: var(--pit-fs-15); color: var(--cat-dim); margin-top: 4px; }
+.batt[data-state="retired"] .batt-name { color: var(--cat-dim); }
+.batt-flags { display: grid; gap: 4px; margin-top: 12px; font-size: var(--pit-fs-15); }
+.batt .tile-actions { margin-top: auto; padding-top: 18px; }
+.batt .tile-actions .btn { flex: 1 1 auto; }
+.batt .tile-actions .btn.ghost { flex: 0 0 auto; }
+
+/* ================================================================================ Queue ======= */
+.match {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 20px;
+  width: 100%;
+  min-height: 84px;
+  padding: 14px 20px 14px 24px;
+  border: 0;
+  border-radius: var(--cat-r-card);
+  background: var(--cat-surface-1);
+  color: var(--cat-body);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--cat-dur-effect) var(--cat-ease-effect), transform var(--cat-dur-hold) var(--cat-ease-hold);
+}
+.match:hover { background: #222224; }
+.match:active { transform: scale(0.99); }
+.match-label { font-size: var(--pit-fs-28); font-weight: var(--cat-w-medium); color: var(--cat-ink); letter-spacing: -0.01em; line-height: 1.1; }
+.match-mid { min-width: 0; display: grid; gap: 4px; }
+.match-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.match-time { color: var(--cat-ink); font-variant-numeric: tabular-nums; }
+.match-teams { font-size: var(--pit-fs-15); color: var(--cat-dim); font-variant-numeric: tabular-nums; }
+.match-end { display: flex; align-items: center; gap: 12px; justify-self: end; }
+.match-count { font-size: var(--pit-fs-20); font-weight: var(--cat-w-medium); color: var(--cat-ink); font-variant-numeric: tabular-nums; }
+.match[data-played="true"] .match-label,
+.match[data-played="true"] .match-time { color: var(--cat-dim); }
+.match[data-next="true"] { box-shadow: inset 0 0 0 1.5px var(--cat-line-strong); }
+.match-list { display: grid; gap: 10px; }
+.day-head { font-size: var(--pit-fs-15); color: var(--cat-dim); padding: 10px 4px 0; }
+
+.feed { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 24px; font-size: var(--pit-fs-15); color: var(--cat-dim); }
+.feed b { color: var(--cat-ink); font-weight: var(--cat-w-medium); }
+.announce { font-size: var(--pit-fs-15); color: var(--cat-body); padding: 8px 0; }
+.announce + .announce { box-shadow: inset 0 1px 0 var(--cat-hair); }
+.announce time { color: var(--cat-dim); margin-right: 10px; font-variant-numeric: tabular-nums; }
+
+/* ================================================================================== Log ======= */
+.log-grid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--pit-gap); align-items: start; }
+.matchlist { display: grid; gap: 4px; padding: 10px; }
+.mrow {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: var(--pit-tap);
+  padding: 0 14px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--cat-dim);
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  transition: background-color var(--cat-dur-effect) var(--cat-ease-effect), color var(--cat-dur-effect) var(--cat-ease-effect);
+}
+.mrow b { font-weight: var(--cat-w-medium); font-size: var(--pit-fs-20); color: inherit; }
+.mrow span { font-size: var(--pit-fs-13); }
+.mrow:hover { color: var(--cat-ink); }
+.mrow[aria-current="true"] { background: var(--cat-surface-2); color: var(--cat-ink); }
+
+.detail { display: grid; gap: 22px; }
+.detail-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.detail-head h2 { font-size: var(--pit-fs-28); font-weight: var(--cat-w-medium); color: var(--cat-ink); letter-spacing: -0.01em; margin-right: auto; }
+.sect { display: grid; gap: 8px; }
+.sect-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; }
+.sect-head h3 { font-size: var(--pit-fs-15); font-weight: var(--cat-w-medium); color: var(--cat-dim); }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.fact { background: var(--cat-surface-2); border-radius: 12px; padding: 12px 16px; min-width: 0; }
+.fact-k { font-size: var(--pit-fs-13); color: var(--cat-dim); }
+.fact-v { font-size: var(--pit-fs-20); color: var(--cat-ink); font-weight: var(--cat-w-medium); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.fact-v.none { color: var(--cat-dim); font-weight: var(--cat-w-normal); font-size: var(--pit-fs-17); }
+
+.issue { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; align-items: center; padding: 14px 0; }
+.issue + .issue { box-shadow: inset 0 1px 0 var(--cat-hair); }
+.issue-top { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+.issue-title { color: var(--cat-ink); overflow-wrap: anywhere; }
+.issue[data-state="fixed"] .issue-title { color: var(--cat-dim); }
+.issue-meta { font-size: var(--pit-fs-15); color: var(--cat-dim); overflow-wrap: anywhere; }
+.issue-detail { font-size: var(--pit-fs-15); color: var(--cat-body); overflow-wrap: anywhere; white-space: pre-wrap; }
+
+/* ============================================================================= fields ========= */
+.field { display: grid; gap: 8px; }
+.field > span, .field > label { font-size: var(--pit-fs-15); color: var(--cat-dim); }
+.field small { font-size: var(--pit-fs-13); color: var(--cat-quiet); }
+
+input[type="text"], input[type="number"], input[type="password"], input[type="date"], input:not([type]), textarea, select {
+  width: 100%;
+  min-height: var(--pit-tap);
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: var(--cat-r-field);
+  background-color: var(--cat-surface-2);
+  color: var(--cat-ink);
+  font-family: inherit;
+  font-size: var(--pit-fs-17);
+  font-variant-numeric: tabular-nums;
+}
+input[type="password"] { border-color: transparent; }
+textarea { font-family: inherit; padding: 14px 16px; line-height: 1.45; min-height: 120px; resize: vertical; }
+input:hover, textarea:hover, select:hover { border-color: transparent; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--cat-ink); }
+input::placeholder, textarea::placeholder { color: var(--cat-faint); }
+input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); cursor: pointer; }
+select { padding-right: 44px; }
+.sheet input[type="text"], .sheet input[type="number"], .sheet input[type="password"], .sheet input[type="date"], .sheet textarea, .sheet select {
+  background-color: rgba(255, 255, 255, 0.09);
+}
+.field.big input { font-size: var(--pit-fs-28); min-height: 68px; font-weight: var(--cat-w-medium); }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+.field[data-bad="true"] input { border-color: var(--cat-bad); }
+
+/* Bezel's scene chips, as a choice of one: the chosen one takes the tonal "on" fill. */
+.seg { display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.07); }
+.seg-btn {
+  position: relative;
+  overflow: hidden;
+  flex: 1 1 0;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cat-dim);
+  font-size: var(--pit-fs-15);
+  font-weight: var(--cat-w-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--cat-dur-effect) var(--cat-ease-effect), color var(--cat-dur-effect) var(--cat-ease-effect);
+}
+.seg-btn[aria-pressed="true"] { background: var(--cat-ink); color: #000; }
+
+/* A switch: Tesla's, blue when on. The knob travels on `settle`. */
+.switch { position: relative; flex: none; width: 60px; height: 36px; border: 0; border-radius: 999px; background: var(--cat-surface-3); cursor: pointer; transition: background-color var(--cat-dur-effect) var(--cat-ease-effect); }
+.switch::before { content: ""; position: absolute; top: 4px; left: 4px; width: 28px; height: 28px; border-radius: 999px; background: #fff; transition: transform var(--cat-dur-settle) var(--cat-ease-settle); }
+.switch[aria-checked="true"] { background: var(--cat-signal); }
+.switch[aria-checked="true"]::before { transform: translateX(24px); }
+.switch:focus-visible { outline: 2px solid var(--cat-ink); outline-offset: 2px; }
+
+/* Two columns that fill top to bottom, so a short tile beside a tall one leaves no hole. */
+.settings { columns: 2; column-gap: var(--pit-gap); }
+.settings .tile, .about { display: grid; gap: 18px; }
+.settings .tile { break-inside: avoid; margin-bottom: var(--pit-gap); }
+.settings h2, .about h2 { font-size: var(--pit-fs-20); font-weight: var(--cat-w-medium); color: var(--cat-ink); }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.set-row > div { min-width: 0; }
+.set-row > .btn, .set-row > .switch { flex: none; }
+.path { font-family: var(--cat-mono); font-size: var(--pit-fs-13); font-weight: 400; color: var(--cat-body); overflow-wrap: anywhere; user-select: text; -webkit-user-select: text; }
+
+/* ============================================================================== sheet ========= */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.55);
+  animation: scrim var(--cat-dur-effect) var(--cat-ease-effect) both;
+}
+@keyframes scrim { from { opacity: 0; } }
+
+.sheet {
+  width: min(540px, 100%);
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  --cat-glass-fill: rgba(34, 34, 37, 0.82);
+  animation: sheet var(--cat-dur-release) var(--cat-ease-release) both;
+}
+@keyframes sheet {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  30% { opacity: 1; }
+}
+.scrim.leaving { animation: scrim-out var(--cat-dur-effect) var(--cat-ease-effect) both; }
+.scrim.leaving .sheet { animation: sheet-out var(--cat-dur-effect) var(--cat-ease-smooth) both; }
+@keyframes scrim-out { to { opacity: 0; } }
+@keyframes sheet-out { to { opacity: 0; transform: translateY(10px) scale(0.985); } }
+
+.sheet-head { padding: 26px 28px 0; }
+.sheet-head h2 { font-size: var(--pit-fs-28); font-weight: var(--cat-w-medium); color: var(--cat-ink); letter-spacing: -0.01em; }
+.sheet-head p { color: var(--cat-dim); font-size: var(--pit-fs-15); margin-top: 6px; }
+.sheet-body { padding: 22px 28px 6px; display: grid; gap: 18px; overflow: hidden auto; }
+.sheet-error { color: var(--cat-bad); font-size: var(--pit-fs-15); min-height: 21px; padding: 4px 28px 0; }
+.sheet-foot { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; padding: 14px 28px 26px; }
+.sheet-foot .btn { background: rgba(255, 255, 255, 0.1); }
+.sheet-foot .btn:hover { background: rgba(255, 255, 255, 0.16); }
+.sheet-foot .btn.primary { background: var(--cat-signal); }
+.sheet-foot .btn.primary:hover { background: var(--cat-signal-lt); }
+.sheet-foot .btn.ghost { background: transparent; }
+.sheet-foot .spacer { margin-right: auto; }
+
+.sheet-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.sheet-actions .btn { background: rgba(255, 255, 255, 0.1); }
+.sheet-actions .btn:hover { background: rgba(255, 255, 255, 0.16); }
+.history { display: grid; }
+.history .kv dd { text-align: right; }
+
+/* ============================================================================= island ========= */
+/* Bezel's top island, at desktop scale: a glass capsule that grows out of a drop at the top edge
+   and shrinks back into it. Its words arrive once it is most of the way grown. */
+.island {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  z-index: 30;
+  height: 48px;
+  max-width: min(640px, calc(100vw - 32px));
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  --cat-glass-fill: rgba(44, 44, 46, 0.86);
+  color: var(--cat-ink);
+  font-size: var(--pit-fs-15);
+  font-weight: var(--cat-w-medium);
+  white-space: nowrap;
+  transform: translate(-50%, 0);
+  animation: island-in var(--cat-dur-release) var(--cat-ease-release) both;
+  pointer-events: none;
+}
+.island span { overflow: hidden; text-overflow: ellipsis; animation: island-words var(--cat-dur-effect) var(--cat-ease-effect) 0.12s both; }
+.island.leaving { animation: island-out var(--cat-dur-smooth) var(--cat-ease-smooth) both; }
+@keyframes island-in { from { transform: translate(-50%, -8px) scale(0.58); opacity: 0; } 25% { opacity: 1; } }
+@keyframes island-out { to { transform: translate(-50%, -8px) scale(0.58); opacity: 0; } }
+@keyframes island-words { from { opacity: 0; } }
+
+/* ============================================================================= narrow ========= */
+/* Beside a Driver Station, Pit is a column. That is a layout of its own: the rail turns into a bar
+   of the same six sections along the bottom, tiles stack, and the countdown still fits. */
+@media (max-width: 860px) {
+  .app { grid-template: "top" 48px "stage" minmax(0, 1fr) "rail" 68px / minmax(0, 1fr); }
+  .top { padding: 0 16px; gap: 14px; }
+  .brand { width: auto; justify-content: flex-start; }
+  .top-event { display: none; }
+  .rail { flex-direction: row; gap: 2px; padding: 4px 8px 8px; box-shadow: inset 0 1px 0 var(--cat-hair); }
+  .nav-btn { flex: 1 1 0; height: 56px; min-width: 0; gap: 3px; font-size: 12px; border-radius: 14px; }
+  .nav-btn svg { width: 24px; height: 24px; }
+  .nav-spacer { display: none; }
+  .nav-count { top: 4px; right: calc(50% - 26px); }
+  .stage { padding: 4px 4px 28px 16px; }
+
+  .now-grid, .log-grid { grid-template-columns: minmax(0, 1fr); }
+  .groups, .settings { columns: 1; }
+  .pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .pair > :nth-child(3):last-child, .pair.batt-pair > :first-child { grid-column: 1 / -1; }
+  .next { min-height: 0; padding: 22px 20px 20px; }
+  .count { padding: 26px 0 22px; }
+  .matchlist { display: flex; overflow: auto hidden; padding: 8px; scrollbar-width: none; }
+  .matchlist::-webkit-scrollbar { display: none; }
+  .mrow { flex: none; flex-direction: column; justify-content: center; gap: 0; min-height: 56px; padding: 0 16px; }
+  .match { grid-template-columns: 76px minmax(0, 1fr); padding: 14px 16px 14px 18px; }
+  .match-end { grid-column: 1 / -1; justify-self: start; }
+  .cl-bar { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 520px) {
+  :root { --pit-fs-88: 68px; --pit-fs-44: 36px; --pit-pad: 18px; }
+  .top-stat#nexusTag { display: none; }
+  .head h1 { font-size: 24px; }
+  .sheet-head, .sheet-body, .sheet-foot { padding-left: 20px; padding-right: 20px; }
+  .sheet-error { padding-left: 20px; padding-right: 20px; }
+  .scrim { padding: 12px; align-items: end; }
+  .sheet-foot .btn { flex: 1 1 auto; }
+  .batt-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Bezel's calm version: no travel, no overshoot. identity.css already shortens every duration. */
+@media (prefers-reduced-motion: reduce) {
+  .view.arrive > *, .sheet, .island, .island span, .check.just .check-box::before { animation: none; }
+  .btn:active, .nav-btn:active, button.tile:active, .match:active { transform: none; }
+}

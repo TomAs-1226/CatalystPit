@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "pit-ui",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "harness"],
+      "port": 5210
+    }
+  ]
+}
