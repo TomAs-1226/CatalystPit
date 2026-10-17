@@ -1,6 +1,6 @@
 [package]
 name = "catalyst-pit"
-version = "0.1.0"
+version = "0.1.1"
 description = "Catalyst Pit — the match-day pit companion"
 edition = "2021"
 rust-version = "1.77"
