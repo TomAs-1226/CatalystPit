@@ -9,7 +9,7 @@
 #
 # "New" means no release for v<version> exists yet, where <version> is src-tauri/tauri.conf.json's. A
 # version means one build: a second build is never published under a version that already exists,
-# so the release job keys on the tag being absent and `gh release create` refuses a tag that is
+# so the release job keys on the release being absent and `gh release create` refuses a release that is
 # there. To ship a fix, bump the version everywhere it is carried and push.
 #
 # The release carries one file: the Windows NSIS installer, `Catalyst Pit_<version>_x64-setup.exe`.
@@ -74,7 +74,8 @@ jobs:
           exists=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq '.[].tag_name' | awk -v tag="v$version" '$0==tag {found=1} END {print found ? "true" : "false"}')
           # devtools prepares the immutable tag locally before it is pushed. A tag alone is not a
           # finished release; verify its commit, then allow the checked assets to be published once.
-          if [ "$exists" = "false" ] && [ -n "$(git ls-remote --tags origin "refs/tags/v$version")" ]; then
+          tag_ref=$(git ls-remote --tags origin "refs/tags/v$version")
+          if [ "$exists" = "false" ] && [ -n "$tag_ref" ]; then
             git fetch --no-tags origin "refs/tags/v$version:refs/tags/v$version"
             if [ "$(git rev-parse "v$version^{commit}")" != "$GITHUB_SHA" ]; then
               echo "v$version belongs to a different commit; bump the version" >&2
@@ -114,6 +115,16 @@ jobs:
 
       # Exactly one installer for exactly this version, or stop: a stale one left by a cache must
       # never be published under a new tag.
+      - name: Verify prepared tag before publishing
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "refs/tags/v$VERSION:refs/tags/v$VERSION"
+          if [ "$(git rev-parse "v$VERSION^{commit}")" != "$GITHUB_SHA" ]; then
+            echo "Prepared tag does not match the checked build commit" >&2
+            exit 1
+          fi
+
       - name: Publish
         shell: bash
         run: |
@@ -124,7 +135,7 @@ jobs:
             ls -la src-tauri/target/release/bundle/nsis >&2 || true
             exit 1
           fi
-          gh release create "v$VERSION" "${files[0]}" \
+          gh release create "v$VERSION" --verify-tag "${files[0]}" \
             --target "$GITHUB_SHA" \
             --title "Catalyst Pit v$VERSION" \
             --notes "Match day in the pit: the pre-match checklist, batteries, the queue and the match log. Windows installer; installs for the signed-in user, no administrator needed. Catalyst Setup installs and updates it from this release."
