@@ -61,7 +61,7 @@ Every change must keep all three.
 ## Git and files
 
 - Don't commit, push, tag or release unless the user asks for it in the current session.
-- There is no remote yet.
+- `origin` is `TomAs-1226/CatalystPit` on GitHub. A new version pushed to `main` runs the checked release workflow.
 - `src/vendor/`, `src-tauri/target/` and `src-tauri/gen/` are generated and gitignored.
 - Files are UTF-8 without a BOM, LF line endings. In Windows PowerShell 5.1, don't round-trip them
   through `Get-Content` / `Set-Content`. Use an editor tool.
