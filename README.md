@@ -8,6 +8,19 @@ It runs on the driver station laptop and needs no network.
 
 ![The Now screen](docs/screenshots/now.png)
 
+## Release 0.1.1 — operating checklist
+
+Download the per-user Windows installer from [GitHub Releases](https://github.com/TomAs-1226/CatalystPit/releases/latest),
+or install it through Catalyst Setup. An upgrade keeps the existing event data.
+
+Before leaving an internet connection, enter the event and team, import the schedule if available,
+and check battery labels and the checklist. At the venue, manual queue entries, measurements and
+notes continue to work offline. Nexus can refresh a schedule when reachable; a missing network
+never prevents using the app. Export the event report from Log when you need a portable copy.
+
+This maintenance release documents the offline workflow and verifies the existing storage,
+read-only robot link and installer contracts; it adds no robot-control commands or sample data.
+
 ## What it does
 
 | Screen | What it is for |

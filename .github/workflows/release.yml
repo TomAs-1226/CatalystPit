@@ -7,7 +7,7 @@
 #   push to main, version is new      -> the checks run, then v<version> is built and released
 #   run by hand (workflow_dispatch)   -> the same decision, for the commit it is run on
 #
-# "New" means no tag v<version> exists yet, where <version> is src-tauri/tauri.conf.json's. A
+# "New" means no release for v<version> exists yet, where <version> is src-tauri/tauri.conf.json's. A
 # version means one build: a second build is never published under a version that already exists,
 # so the release job keys on the tag being absent and `gh release create` refuses a tag that is
 # there. To ship a fix, bump the version everywhere it is carried and push.
@@ -64,12 +64,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: read
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           version=$(node -p "require('./src-tauri/tauri.conf.json').version")
-          if [ -n "$(git ls-remote --tags origin "refs/tags/v$version")" ]; then exists=true; else exists=false; fi
+          # Listing releases fails closed on network/auth errors, unlike treating every failed
+          # release lookup as proof that it is absent. Draft releases also count as existing.
+          exists=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq '.[].tag_name' | awk -v tag="v$version" '$0==tag {found=1} END {print found ? "true" : "false"}')
+          # devtools prepares the immutable tag locally before it is pushed. A tag alone is not a
+          # finished release; verify its commit, then allow the checked assets to be published once.
+          if [ "$exists" = "false" ] && [ -n "$(git ls-remote --tags origin "refs/tags/v$version")" ]; then
+            git fetch --no-tags origin "refs/tags/v$version:refs/tags/v$version"
+            if [ "$(git rev-parse "v$version^{commit}")" != "$GITHUB_SHA" ]; then
+              echo "v$version belongs to a different commit; bump the version" >&2
+              exit 1
+            fi
+          fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "exists=$exists" >> "$GITHUB_OUTPUT"
-          echo "v$version: tag exists = $exists" >> "$GITHUB_STEP_SUMMARY"
+          echo "v$version: release exists = $exists" >> "$GITHUB_STEP_SUMMARY"
 
   release:
     needs: [check, version]
